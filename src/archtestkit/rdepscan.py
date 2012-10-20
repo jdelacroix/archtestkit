@@ -33,7 +33,7 @@ def rdepscan(package):
     # returns list of packages that provide the library dependencies
     command = 'qfile'
     flags = '-Cv'
-    args = output.replace('\n', '').split(',')
+    args = output.replace('\n', ',').split(',')
     output = make_call(command, flags, args)
     
     # remove duplicates and return
