@@ -13,21 +13,25 @@ import re
 
 def repoman(package):
     current_dir = os.getcwd()
-    print(current_dir)
+#    print(current_dir)
     
-    os.chdir(os.path.join('/usr/portage/', package.category, package.name))
-    print(os.getcwd())
+    portdir = '/usr/portage'
+    os.chdir(os.path.join(portdir, package.category, package.name))
+#    print(os.getcwd())
     
     ebuild = os.path.realpath(package.name + '-' + package.version + '.ebuild')
     print(ebuild)
     
+    # save ebuild in memory
     with open(ebuild, 'r') as file:
         lines = file.readlines()
         
+    # mark ARCH stable for this repoman check
+    arch = 'arm64'
     with open(ebuild, 'w') as file:
         for line in lines:
             if 'KEYWORDS=' in line:
-                line = re.sub(r'~amd64', 'amd64', line)
+                line = re.sub(r'~%s'%arch, arch, line)
             file.write(line)
     
 #    count = 1
@@ -43,15 +47,16 @@ def repoman(package):
 #    print(output)
     
     output = make_sys_call('repoman', args=['manifest'])
-    print(output)
+#    print(output)
     
     output = make_sys_call('repoman', args=['full']);
     print(output)
     
-    s = output.split('\n')[-2]
+    # check repoman's response
+    rc = output.split('\n')[-2]
+    qa_ok = ("If everyone were like you, I'd be out of business!" in rc)
 
-    qa_ok = ("If everyone were like you, I'd be out of business!" in s)
-
+    # restore ebuild from memory
     with open(ebuild, 'w') as file:
         for line in lines:
             file.write(line)
@@ -63,10 +68,10 @@ def repoman(package):
 #    print(output)
     
     output = make_sys_call('repoman', args=['manifest'])
-    print(output)
+#    print(output)
         
     os.chdir(current_dir)
-    print(os.getcwd())    
+#    print(os.getcwd())    
 
     return qa_ok
 
@@ -74,6 +79,6 @@ def repoman(package):
 if __name__ == '__main__':
     pkg = Package(sys.argv[1]) # for now assume, =category/package-version
     if repoman(pkg):
-    	print('repoman checked out ok')
+        print('repoman checked out ok')
     else:
-    	print('repoman detected QA problems, so check above output')
+        print('repoman detected QA problems, so check above output')
