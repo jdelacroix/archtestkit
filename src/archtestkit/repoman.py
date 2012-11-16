@@ -27,7 +27,7 @@ def repoman(package):
     with open(ebuild, 'w') as file:
         for line in lines:
             if 'KEYWORDS=' in line:
-                line = re.sub(r'amd64', '~amd64', line)
+                line = re.sub(r'~amd64', 'amd64', line)
             file.write(line)
     
 #    count = 1
