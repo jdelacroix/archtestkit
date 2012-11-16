@@ -48,6 +48,10 @@ def repoman(package):
     output = make_sys_call('repoman', args=['full']);
     print(output)
     
+    s = output.split('\n')[-2]
+
+    qa_ok = ("If everyone were like you, I'd be out of business!" in s)
+
     with open(ebuild, 'w') as file:
         for line in lines:
             file.write(line)
@@ -64,8 +68,12 @@ def repoman(package):
     os.chdir(current_dir)
     print(os.getcwd())    
 
+    return qa_ok
+
 
 if __name__ == '__main__':
     pkg = Package(sys.argv[1]) # for now assume, =category/package-version
-    repoman(pkg)
-    
+    if repoman(pkg):
+    	print('repoman checked out ok')
+    else:
+    	print('repoman detected QA problems, so check above output')
